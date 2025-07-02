@@ -227,59 +227,59 @@ Repartidor <--> API <--> Pedido, Notificaciones
 ## ✅ 2.3 Definición de tablas (DDL en texto)
 
 ✅ **users**
-id INT PK AUTO_INCREMENT
-name VARCHAR(100)
-email VARCHAR(100) UNIQUE
-password VARCHAR(255)
-role ENUM('admin','cliente','repartidor')
-phone VARCHAR(20)
-location_lat DECIMAL(10,8)
-location_lng DECIMAL(11,8)
-created_at DATETIME
+-id INT PK AUTO_INCREMENT
+-name VARCHAR(100)
+-email VARCHAR(100) UNIQUE
+-password VARCHAR(255)
+-role ENUM('admin','cliente','repartidor')
+-phone VARCHAR(20)
+-location_lat DECIMAL(10,8)
+-location_lng DECIMAL(11,8)
+-created_at DATETIME
 
 ✅ **products**
-id INT PK AUTO_INCREMENT
-name VARCHAR(100)
-description TEXT
-price DECIMAL(10,2)
-image_url VARCHAR(255)
-stock INT
-created_at DATETIME
+-id INT PK AUTO_INCREMENT
+-name VARCHAR(100)
+-description TEXT
+-price DECIMAL(10,2)
+-image_url VARCHAR(255)
+-stock INT
+-created_at DATETIME
 
 ✅ **orders**
-id INT PK AUTO_INCREMENT
-client_id INT FK
-repartidor_id INT FK NULL
-status ENUM('pending','confirmed','en_camino','entregado')
-total_price DECIMAL(10,2)
-address VARCHAR(255)
-location_lat DECIMAL(10,8)
-location_lng DECIMAL(11,8)
-created_at DATETIME
+-id INT PK AUTO_INCREMENT
+-client_id INT FK
+-repartidor_id INT FK NULL
+-status ENUM('pending','confirmed','en_camino','entregado')
+-total_price DECIMAL(10,2)
+-address VARCHAR(255)
+-location_lat DECIMAL(10,8)
+-location_lng DECIMAL(11,8)
+-created_at DATETIME
 
 ✅ **order_items**
-id INT PK AUTO_INCREMENT
-order_id INT FK
-product_id INT FK
-quantity INT
-unit_price DECIMAL(10,2)
+-id INT PK AUTO_INCREMENT
+-order_id INT FK
+-product_id INT FK
+-quantity INT
+-unit_price DECIMAL(10,2)
 
 ✅ **reviews**
-id INT PK AUTO_INCREMENT
-order_id INT FK
-client_id INT FK
-repartidor_id INT FK
-rating INT
-comment TEXT
-created_at DATETIME
+-id INT PK AUTO_INCREMENT
+-order_id INT FK
+-client_id INT FK
+-repartidor_id INT FK
+-rating INT
+-comment TEXT
+-created_at DATETIME
 
 ✅ **notifications**
-id INT PK AUTO_INCREMENT
-user_id INT FK
-title VARCHAR(255)
-message TEXT
-is_read BOOLEAN
-created_at DATETIME
+-id INT PK AUTO_INCREMENT
+-user_id INT FK
+-title VARCHAR(255)
+-message TEXT
+-is_read BOOLEAN
+-created_at DATETIME
 
 ---
 ## ✅ 2.4 Arquitectura Modular NestJS (pensando en microservicios futuros)
@@ -311,5 +311,57 @@ El diseño modular permite migrar a microservicios en el futuro, donde cada mód
 - **notifications**: Envío y consulta de notificaciones push (FCM).
 - **common**: Pipes, Guards, DTOs y utilidades compartidas.
 - **database**: Configuración de TypeORM/Prisma, entidades y migraciones.
+
+---
+### ✅ Endpoints REST iniciales
+
+---
+
+#### 🔐 Auth
+- POST /auth/register
+- POST /auth/login
+- POST /auth/refresh
+
+---
+
+#### 👥 Users
+- GET /users/me
+- PATCH /users/me
+- GET /users/:id
+- GET /users
+- POST /users
+- PATCH /users/:id
+- DELETE /users/:id
+
+---
+
+#### 🛒 Products
+- GET /products
+- GET /products/:id
+- POST /products
+- PATCH /products/:id
+- DELETE /products/:id
+
+---
+
+#### 📦 Orders
+- GET /orders
+- GET /orders/:id
+- POST /orders
+- PATCH /orders/:id
+- GET /orders/nearby
+
+---
+
+#### ⭐ Reviews
+- POST /reviews
+- GET /reviews/:id
+- GET /reviews
+
+---
+
+#### 🔔 Notifications
+- GET /notifications
+- PATCH /notifications/:id
 
 
