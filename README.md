@@ -103,3 +103,213 @@ El sistema **DeliveryApp PRO** busca gestionar pedidos de delivery entre cliente
 
 ---
 
+# 📑 Documento de Diseño del Sistema
+## DeliveryApp PRO - FASE 2: Diseño
+
+---
+
+## ✅ 2.1 Diagramas de Casos de Uso (versión texto)
+
+### 📌 Casos de uso por rol
+
+#### 📱 Cliente
+- Registrarse / iniciar sesión
+- Navegar catálogo
+- Agregar productos al carrito
+- Pagar pedido
+- Ver estado del pedido en tiempo real
+- Ver ubicación del repartidor en el mapa
+- Calificar al repartidor
+
+---
+
+#### 🚚 Repartidor
+- Iniciar sesión
+- Ver pedidos cercanos
+- Aceptar pedido
+- Cambiar estado del pedido (recogido, en camino, entregado)
+- Navegar al destino con mapa
+- Recibir notificaciones
+
+---
+
+#### 🛠️ Administrador
+- Iniciar sesión
+- Crear/editar/borrar usuarios
+- Crear/editar/borrar productos
+- Ver pedidos y estados
+- Asignar/reasignar pedidos
+- Ver reportes
+
+---
+
+### ✅ ➜ Diagrama conceptual (texto)
+
+Cliente <--> API <--> Pedido <--> Repartidor
+Admin <--> API <--> Usuarios, Productos, Pedidos
+Repartidor <--> API <--> Pedido, Notificaciones
+
+
+---
+
+## ✅ 2.2 Modelo Entidad-Relación (ER) preliminar
+
+### 📌 Entidades principales
+
+✅ **User**
+- id (PK)
+- name
+- email
+- password
+- role (admin, cliente, repartidor)
+- phone
+- location_lat
+- location_lng
+- created_at
+
+✅ **Product**
+- id (PK)
+- name
+- description
+- price
+- image_url
+- stock
+- created_at
+
+✅ **Order**
+- id (PK)
+- client_id (FK -> User)
+- repartidor_id (FK -> User)
+- status (pending, confirmed, en_camino, entregado)
+- total_price
+- address
+- location_lat
+- location_lng
+- created_at
+
+✅ **OrderItem**
+- id (PK)
+- order_id (FK -> Order)
+- product_id (FK -> Product)
+- quantity
+- unit_price
+
+✅ **Review**
+- id (PK)
+- order_id (FK -> Order)
+- client_id (FK -> User)
+- repartidor_id (FK -> User)
+- rating
+- comment
+- created_at
+
+✅ **Notification**
+- id (PK)
+- user_id (FK -> User)
+- title
+- message
+- is_read
+- created_at
+
+---
+
+### ✅ Relaciones clave
+
+- User (1) ↔ (N) Order (como cliente)
+- User (1) ↔ (N) Order (como repartidor)
+- Order (1) ↔ (N) OrderItem
+- Product (1) ↔ (N) OrderItem
+- User (1) ↔ (N) Notification
+- Order (1) ↔ (1) Review
+
+---
+
+## ✅ 2.3 Definición de tablas (DDL en texto)
+
+✅ **users**
+id INT PK AUTO_INCREMENT
+name VARCHAR(100)
+email VARCHAR(100) UNIQUE
+password VARCHAR(255)
+role ENUM('admin','cliente','repartidor')
+phone VARCHAR(20)
+location_lat DECIMAL(10,8)
+location_lng DECIMAL(11,8)
+created_at DATETIME
+
+✅ **products**
+id INT PK AUTO_INCREMENT
+name VARCHAR(100)
+description TEXT
+price DECIMAL(10,2)
+image_url VARCHAR(255)
+stock INT
+created_at DATETIME
+
+✅ **orders**
+id INT PK AUTO_INCREMENT
+client_id INT FK
+repartidor_id INT FK NULL
+status ENUM('pending','confirmed','en_camino','entregado')
+total_price DECIMAL(10,2)
+address VARCHAR(255)
+location_lat DECIMAL(10,8)
+location_lng DECIMAL(11,8)
+created_at DATETIME
+
+✅ **order_items**
+id INT PK AUTO_INCREMENT
+order_id INT FK
+product_id INT FK
+quantity INT
+unit_price DECIMAL(10,2)
+
+✅ **reviews**
+id INT PK AUTO_INCREMENT
+order_id INT FK
+client_id INT FK
+repartidor_id INT FK
+rating INT
+comment TEXT
+created_at DATETIME
+
+✅ **notifications**
+id INT PK AUTO_INCREMENT
+user_id INT FK
+title VARCHAR(255)
+message TEXT
+is_read BOOLEAN
+created_at DATETIME
+
+---
+## ✅ 2.4 Arquitectura Modular NestJS (pensando en microservicios futuros)
+
+src/
+  auth/
+  users/
+  products/
+  orders/
+  order-items/
+  reviews/
+  notifications/
+  common/
+  database/
+---
+### ✅ Arquitectura técnica
+El backend se desarrollará como un **monolito modular en NestJS**, con módulos independientes (Auth, Users, Products, Orders, etc.) conectados a una única base de datos MySQL.  
+
+El diseño modular permite migrar a microservicios en el futuro, donde cada módulo se desplegaría como un servicio independiente con mensajería (RabbitMQ, Kafka) y un API Gateway para unificar la comunicación con los clientes móviles.
+---
+### ✅ Módulos NestJS
+
+- **auth**: Registro de usuario, login, autenticación JWT, roles y permisos.
+- **users**: Perfil de usuario, edición, localización actual.
+- **products**: Catálogo de productos, precios, stock, imágenes.
+- **orders**: Creación y gestión de pedidos, asignación de repartidores, cambio de estado.
+- **order-items**: Productos específicos incluidos en cada pedido.
+- **reviews**: Calificación y comentarios de los clientes.
+- **notifications**: Envío y consulta de notificaciones push (FCM).
+- **common**: Pipes, Guards, DTOs y utilidades compartidas.
+- **database**: Configuración de TypeORM/Prisma, entidades y migraciones.
+
+
